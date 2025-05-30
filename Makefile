@@ -28,6 +28,22 @@ diff: ## Show the diff between running config and designed config
 test: ## validate the network state
 	cd $(CURRENT_DIR)/avd; ansible-playbook playbooks/avd_validate.yml
 
+.PHONY: client1-test
+client1-test:
+	ssh clab-srmpls-client1 test
+
+.PHONY: client2-test
+client2-test:
+	ssh clab-srmpls-client2 test
+
+.PHONY: client3-test
+client3-test:
+	ssh clab-srmpls-client3 test
+
+.PHONY: client4-test
+client4-test:
+	ssh clab-srmpls-client4 test
+
 .PHONY: tags
 tags: ## add tags for topology view
 	cd $(CURRENT_DIR)/avd; ansible-playbook playbooks/avd_create_tags.yml
