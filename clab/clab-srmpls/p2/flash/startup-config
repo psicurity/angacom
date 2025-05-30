@@ -1,0 +1,193 @@
+! Startup-config last modified at Fri May 30 16:13:39 2025 by psi
+! device: p2 (DCS-7280CR3AK-32S-F, EOS-4.33.2F-40713977.4332F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0
+username admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP ubuntu@LHVS0020
+username ansible privilege 15 role network-admin secret sha512 $6$QJUtFkyu9yoecsq.$ysGzlb2YXaIMvezqGEna7RE8CMALJHnv7Q1i.27VygyKUtSeX.n2xRTyOtCR8eOAl.4imBLyhXFc4o97P5n071
+!
+management api http-commands
+   protocol https ssl profile eAPI
+   no shutdown
+   !
+   vrf MGMT
+      no shutdown
+!
+daemon TerminAttr
+   exec /usr/bin/TerminAttr -cvaddr=apiserver.arista.io:443 -cvauth=token-secure,/mnt/flash/cv-onboarding-token -cvvrf=MGMT -disableaaa -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -taillogs
+   no shutdown
+!
+vlan internal order ascending range 1006 1199
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname p2
+ip name-server vrf MGMT 8.8.4.4
+ip name-server vrf MGMT 8.8.8.8
+dns domain angacom.lab
+!
+platform tfa
+   personality arfa
+!
+spanning-tree mode none
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance MGMT
+!
+management security
+   password encryption-key common
+   !
+   ssl profile eAPI
+      cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL
+      certificate eAPI.crt key eAPI.key
+!
+aaa authorization exec default local
+!
+interface Ethernet1
+   description P2P_pe2_Ethernet1
+   mtu 9000
+   no switchport
+   ip address 10.255.3.5/31
+   mpls ldp igp sync
+   mpls ldp interface
+   isis enable CORE
+   isis circuit-type level-2
+   isis metric 50
+   isis hello padding
+   isis network point-to-point
+   isis authentication mode md5
+   isis authentication key 7 $1c$sTNAlR6rKSw=
+!
+interface Ethernet2
+   description P2P_pe1_Ethernet2
+   mtu 9000
+   no switchport
+   ip address 10.255.3.3/31
+   mpls ldp igp sync
+   mpls ldp interface
+   isis enable CORE
+   isis circuit-type level-2
+   isis metric 50
+   isis hello padding
+   isis network point-to-point
+   isis authentication mode md5
+   isis authentication key 7 $1c$sTNAlR6rKSw=
+!
+interface Ethernet3
+   description P2P_rr2_Ethernet3
+   mtu 9000
+   no switchport
+   ip address 10.255.3.17/31
+   mpls ldp igp sync
+   mpls ldp interface
+   isis enable CORE
+   isis circuit-type level-2
+   isis metric 50
+   isis hello padding
+   isis network point-to-point
+   isis authentication mode md5
+   isis authentication key 7 $1c$sTNAlR6rKSw=
+!
+interface Ethernet4
+   description P2P_p1_Ethernet4
+   mtu 9000
+   no switchport
+   ip address 10.255.3.9/31
+   mpls ldp igp sync
+   mpls ldp interface
+   isis enable CORE
+   isis circuit-type level-2
+   isis metric 50
+   isis hello padding
+   isis network point-to-point
+   isis authentication mode md5
+   isis authentication key 7 $1c$sTNAlR6rKSw=
+!
+interface Loopback0
+   description ROUTER_ID
+   ip address 10.255.0.2/32
+   mpls ldp interface
+   node-segment ipv4 index 2
+   isis enable CORE
+   isis passive
+!
+interface Management1
+   description OOB_MANAGEMENT
+   vrf MGMT
+   ip address 172.16.100.12/24
+   no lldp transmit
+   no lldp receive
+!
+event-handler ConfigureHardwareModel
+   trigger on-boot
+   action bash
+           python -m Acons Sysdb << EOF
+           cd /ar/Sysdb/hardware/entmib
+           if (model := os.getenv('MODEL_NAME')):
+              _.fixedSystem.modelName = model
+           elif (model := os.getenv('CHASSIS_MODEL_NAME')):
+              _.chassis = (1,0,'Chassis')
+              _.chassis.modelName = model
+              for var, value in os.environ.items():
+                 if var.startswith('CHASSIS'):
+                    keys = var.split('_')
+                    if keys[1] == "SUPERVISOR":
+                       i = int(keys[2])
+                       _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')
+                       _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')
+                       _.chassis.cardSlot[i].card.modelName = value
+                    elif keys[1] == "LINECARD":
+                       i = int(keys[2]) + 2
+                       _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')
+                       _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')
+                       _.chassis.cardSlot[i].card.modelName = value
+      
+      EOF
+!
+ip routing
+no ip routing vrf MGMT
+!
+ip route vrf MGMT 0.0.0.0/0 172.16.100.1
+!
+mpls ip
+!
+mpls ldp
+   router-id 10.255.0.2
+   transport-address interface Loopback0
+   interface disabled default
+   no shutdown
+!
+ntp local-interface vrf MGMT Management1
+ntp server vrf MGMT time.google.com
+!
+router isis CORE
+   net 49.0001.0102.5500.0002.00
+   router-id ipv4 10.255.0.2
+   is-type level-2
+   log-adjacency-changes
+   mpls ldp sync default
+   timers local-convergence-delay protected-prefixes
+   !
+   address-family ipv4 unicast
+      maximum-paths 4
+      fast-reroute ti-lfa mode link-protection
+   !
+   segment-routing mpls
+      no shutdown
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end

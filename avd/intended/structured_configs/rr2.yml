@@ -190,6 +190,14 @@ router_bgp:
     peer_group: RR-OVERLAY-PEERS
     peer: rr1
     description: rr1_Loopback0
+  address_family_evpn:
+    neighbor_default:
+      encapsulation: mpls
+    peer_groups:
+    - name: RR-OVERLAY-PEERS
+      activate: true
+    - name: MPLS-OVERLAY-PEERS
+      activate: true
   address_family_ipv4:
     peer_groups:
     - name: MPLS-OVERLAY-PEERS

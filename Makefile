@@ -46,6 +46,11 @@ client3-test:
 client4-test:
 	ssh clab-srmpls-client4 test
 
+.PHONY: customer3-test
+customer3-test:
+	ssh clab-srmpls-client4 test
+	ssh clab-srmpls-ag test
+
 .PHONY: tags
 tags: ## add tags for topology view
 	cd $(CURRENT_DIR)/avd; ansible-playbook playbooks/avd_create_tags.yml

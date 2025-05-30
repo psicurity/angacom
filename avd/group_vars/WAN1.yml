@@ -88,6 +88,7 @@ rr:
     spanning_tree_mode: none
     loopback_ipv4_pool: 10.255.2.0/27
     mpls_route_reflectors: [ rr1, rr2 ]
+    overlay_address_families: [ 'evpn', 'vpn-ipv4' ]
     # ISIS NET system id prefix
     isis_system_id_prefix: '0000.0002'
   node_groups:
