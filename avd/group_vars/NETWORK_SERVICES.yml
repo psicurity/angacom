@@ -36,7 +36,7 @@ tenants:
           - vpn-ipv4
         l3_interfaces:
           # L3 interfaces
-          - interfaces: [ Ethernet3.20, Ethernet4.20, Ethernet4 ]
+          - interfaces: [ Ethernet3.20, Ethernet4.20, Ethernet4.20 ]
             nodes: [ pe1, pe2, pe3 ]
             description: C2_L3_SERVICE
             enabled: true
@@ -55,3 +55,22 @@ tenants:
             send_community: standard
             maximum_routes: 100
             nodes: [ pe3 ]
+
+  - name: CUSTOMER3
+    pseudowire_rt_base: 100
+    point_to_point_services:
+      - name: PW-VPWS-CUSTOMER3
+        type: "vpws-pseudowire"
+        subinterfaces: 
+          - number: "30"
+        endpoints:
+          - id: 30
+            nodes:
+              - pe2
+            interfaces:
+              - "Ethernet4"
+          - id: 30
+            nodes:
+              - pe3
+            interfaces:
+              - "Ethernet4"

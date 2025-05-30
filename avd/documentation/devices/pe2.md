@@ -41,6 +41,9 @@
   - [MPLS and LDP](#mpls-and-ldp)
   - [MPLS Interfaces](#mpls-interfaces)
   - [MPLS Device Configuration](#mpls-device-configuration)
+- [Patch Panel](#patch-panel)
+  - [Patch Panel Summary](#patch-panel-summary)
+  - [Patch Panel Device Configuration](#patch-panel-device-configuration)
 - [Multicast](#multicast)
   - [IP IGMP Snooping](#ip-igmp-snooping)
 - [VRF Instances](#vrf-instances)
@@ -278,6 +281,12 @@ vlan internal order ascending range 1006 1199
 | Ethernet4.10 | C1_L3_SERVICE | - | 10 | - |
 | Ethernet4.20 | C2_L3_SERVICE | - | 20 | - |
 
+##### Flexible Encapsulation Interfaces
+
+| Interface | Description | Vlan ID | Client Encapsulation | Client Inner Encapsulation | Client VLAN | Client Outer VLAN Tag | Client Inner VLAN Tag | Network Encapsulation | Network Inner Encapsulation | Network VLAN | Network Outer VLAN Tag | Network Inner VLAN Tag |
+| --------- | ----------- | ------- | --------------- | --------------------- | ----------- | --------------------- | --------------------- | ---------------- | ---------------------- |------------ | ---------------------- | ---------------------- |
+| Ethernet4.30 | - | - | dot1q | - | 30 | - | - | client | - | - | - | - |
+
 ##### IPv4
 
 | Interface | Description | Channel Group | IP Address | VRF |  MTU | Shutdown | ACL In | ACL Out |
@@ -350,6 +359,11 @@ interface Ethernet4.20
    encapsulation dot1q vlan 20
    vrf C2_VRF1
    ip address 10.1.1.2/29
+!
+interface Ethernet4.30
+   no shutdown
+   encapsulation vlan
+      client dot1q 30 network client
 ```
 
 ### Loopback Interfaces
@@ -614,6 +628,12 @@ ASN Notation: asplain
 | ---------- | -------- | ------------ | ------------- | ------ | ------- |
 | MPLS-OVERLAY-PEERS | True | - | - | - | - |
 
+#### Router BGP VPWS Instances
+
+| Instance | Route-Distinguisher | Both Route-Target | MPLS Control Word | Label Flow | MTU | Pseudowire | Local ID | Remote ID |
+| -------- | ------------------- | ----------------- | ----------------- | -----------| --- | ---------- | -------- | --------- |
+| CUSTOMER3 | 10.255.1.2:100 | 100:100 | False | False | - | PW-VPWS-CUSTOMER3_30 | 60 | 60 |
+
 #### Router BGP VRFs
 
 | VRF | Route-Distinguisher | Redistribute | Graceful Restart |
@@ -644,6 +664,13 @@ router bgp 65001
    neighbor 10.255.2.1 description rr1_Loopback0
    neighbor 10.255.2.2 peer group MPLS-OVERLAY-PEERS
    neighbor 10.255.2.2 description rr2_Loopback0
+   !
+   vpws CUSTOMER3
+      rd 10.255.1.2:100
+      route-target import export evpn 100:100
+      !
+      pseudowire PW-VPWS-CUSTOMER3_30
+         evpn vpws id local 60 remote 60
    !
    address-family evpn
       neighbor default encapsulation mpls next-hop-self source-interface Loopback0
@@ -731,6 +758,27 @@ mpls ldp
    transport-address interface Loopback0
    interface disabled default
    no shutdown
+```
+
+## Patch Panel
+
+### Patch Panel Summary
+
+#### Patch Panel Connections
+
+| Patch Name | Enabled | Connector A Type | Connector A Endpoint | Connector B Type | Connector B Endpoint |
+| ---------- | ------- | ---------------- | -------------------- | ---------------- | -------------------- |
+| PW-VPWS-CUSTOMER3_30 | True | Interface | Ethernet4.30 | Pseudowire | bgp vpws CUSTOMER3 pseudowire PW-VPWS-CUSTOMER3_30 |
+
+### Patch Panel Device Configuration
+
+```eos
+!
+patch panel
+   patch PW-VPWS-CUSTOMER3_30
+      connector 1 interface Ethernet4.30
+      connector 2 pseudowire bgp vpws CUSTOMER3 pseudowire PW-VPWS-CUSTOMER3_30
+   !
 ```
 
 ## Multicast

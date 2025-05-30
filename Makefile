@@ -9,8 +9,10 @@ start: ## Deploy ceos lab
 	sudo containerlab deploy --debug --topo $(CURRENT_DIR)/clab/topology.clab.yml --max-workers 10 --timeout 5m --reconfigure
 
 .PHONY: stop
-stop: ## Destroy ceos lab
+stop: ## Destroy ceos lab and delete structured config
 	sudo containerlab destroy --debug --topo $(CURRENT_DIR)/clab/topology.clab.yml --cleanup
+	rm $(CURRENT_DIR)/avd/intended/configs/*.cfg
+	rm $(CURRENT_DIR)/avd/intended/structured_configs/*.yml
 
 .PHONY: build
 build: ## Generate AVD configs
