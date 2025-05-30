@@ -18,15 +18,15 @@
 
 | POD | Type | Node | Management IP | Platform | Provisioned in CloudVision | Serial Number |
 | --- | ---- | ---- | ------------- | -------- | -------------------------- | ------------- |
-| FABRIC | p | p1 | 172.16.100.11/24 | vEOS-lab | Provisioned | - |
-| FABRIC | p | p2 | 172.16.100.12/24 | vEOS-lab | Provisioned | - |
-| FABRIC | p | p3 | 172.16.100.13/24 | vEOS-lab | Provisioned | - |
-| FABRIC | p | p4 | 172.16.100.14/24 | vEOS-lab | Provisioned | - |
-| FABRIC | pe | pe1 | 172.16.100.101/24 | vEOS-lab | Provisioned | - |
-| FABRIC | pe | pe2 | 172.16.100.102/24 | vEOS-lab | Provisioned | - |
-| FABRIC | pe | pe3 | 172.16.100.103/24 | vEOS-lab | Provisioned | - |
-| FABRIC | rr | rr1 | 172.16.100.151/24 | vEOS-lab | Provisioned | - |
-| FABRIC | rr | rr2 | 172.16.100.152/24 | vEOS-lab | Provisioned | - |
+| FABRIC | p | p1 | 172.16.100.11/24 | cEOS-lab | Provisioned | - |
+| FABRIC | p | p2 | 172.16.100.12/24 | cEOS-lab | Provisioned | - |
+| FABRIC | p | p3 | 172.16.100.13/24 | cEOS-lab | Provisioned | - |
+| FABRIC | p | p4 | 172.16.100.14/24 | cEOS-lab | Provisioned | - |
+| FABRIC | pe | pe1 | 172.16.100.101/24 | cEOS-lab | Provisioned | - |
+| FABRIC | pe | pe2 | 172.16.100.102/24 | cEOS-lab | Provisioned | - |
+| FABRIC | pe | pe3 | 172.16.100.103/24 | cEOS-lab | Provisioned | - |
+| FABRIC | rr | rr1 | 172.16.100.151/24 | cEOS-lab | Provisioned | - |
+| FABRIC | rr | rr2 | 172.16.100.152/24 | cEOS-lab | Provisioned | - |
 
 > Provision status is based on Ansible inventory declaration and do not represent real status from CloudVision.
 

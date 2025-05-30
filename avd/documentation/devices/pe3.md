@@ -275,9 +275,9 @@ vlan internal order ascending range 1006 1199
 
 | Interface | Description | Channel Group | IP Address | VRF |  MTU | Shutdown | ACL In | ACL Out |
 | --------- | ----------- | ------------- | ---------- | ----| ---- | -------- | ------ | ------- |
-| Ethernet1 | P2P_p3_Ethernet1 | - | 10.255.3.22/31 | default | 1500 | False | - | - |
+| Ethernet1 | P2P_p3_Ethernet1 | - | 10.255.3.22/31 | default | 9000 | False | - | - |
 | Ethernet2 | C1_L3_SERVICE | - | 10.0.1.9/30 | C1_VRF1 | - | False | - | - |
-| Ethernet3 | P2P_p4_Ethernet3 | - | 10.255.3.24/31 | default | 1500 | False | - | - |
+| Ethernet3 | P2P_p4_Ethernet3 | - | 10.255.3.24/31 | default | 9000 | False | - | - |
 | Ethernet4 | C2_L3_SERVICE | - | 10.1.1.9/30 | C2_VRF1 | - | False | - | - |
 
 ##### ISIS
@@ -294,7 +294,7 @@ vlan internal order ascending range 1006 1199
 interface Ethernet1
    description P2P_p3_Ethernet1
    no shutdown
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.22/31
    mpls ldp igp sync
@@ -319,7 +319,7 @@ interface Ethernet2
 interface Ethernet3
    description P2P_p4_Ethernet3
    no shutdown
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.24/31
    mpls ldp igp sync
@@ -493,6 +493,12 @@ router ospf 10 vrf C1_VRF1
 | MPLS LDP Sync Default | True |
 | SR MPLS Enabled | True |
 
+#### ISIS Route Timers
+
+| Settings | Value |
+| -------- | ----- |
+| Local Convergence Delay | 10000 milliseconds |
+
 #### ISIS Interfaces Summary
 
 | Interface | ISIS Instance | ISIS Metric | Interface Mode |
@@ -513,6 +519,7 @@ router ospf 10 vrf C1_VRF1
 | -------- | ----- |
 | IPv4 Address-family Enabled | True |
 | Maximum-paths | 4 |
+| TI-LFA Mode | link-protection |
 
 #### Router ISIS Device Configuration
 
@@ -524,9 +531,11 @@ router isis CORE
    is-type level-2
    log-adjacency-changes
    mpls ldp sync default
+   timers local-convergence-delay 10000 protected-prefixes
    !
    address-family ipv4 unicast
       maximum-paths 4
+      fast-reroute ti-lfa mode link-protection
    !
    segment-routing mpls
       no shutdown
@@ -544,6 +553,9 @@ ASN Notation: asplain
 
 | BGP Tuning |
 | ---------- |
+| graceful-restart restart-time 300 |
+| graceful-restart |
+| update wait-install |
 | no bgp default ipv4-unicast |
 | distance bgp 20 200 200 |
 | maximum-paths 4 ecmp 4 |
@@ -569,6 +581,20 @@ ASN Notation: asplain
 | 10.255.2.2 | Inherited from peer group MPLS-OVERLAY-PEERS | default | - | Inherited from peer group MPLS-OVERLAY-PEERS | Inherited from peer group MPLS-OVERLAY-PEERS | - | Inherited from peer group MPLS-OVERLAY-PEERS | - | - | - | - |
 | 10.1.1.10 | 65124 | C2_VRF1 | - | standard | 100 | - | - | - | - | - | - |
 
+#### Router BGP EVPN Address Family
+
+##### EVPN Peer Groups
+
+| Peer Group | Activate | Route-map In | Route-map Out | Encapsulation | Next-hop-self Source Interface |
+| ---------- | -------- | ------------ | ------------- | ------------- | ------------------------------ |
+| MPLS-OVERLAY-PEERS | True |  - | - | default | - |
+
+##### EVPN Neighbor Default Encapsulation
+
+| Neighbor Default Encapsulation | Next-hop-self Source Interface |
+| ------------------------------ | ------------------------------ |
+| mpls | Loopback0 |
+
 #### Router BGP VPN-IPv4 Address Family
 
 ##### VPN-IPv4 Peer Groups
@@ -590,8 +616,11 @@ ASN Notation: asplain
 !
 router bgp 65001
    router-id 10.255.1.3
+   update wait-install
    no bgp default ipv4-unicast
    distance bgp 20 200 200
+   graceful-restart restart-time 300
+   graceful-restart
    maximum-paths 4 ecmp 4
    neighbor MPLS-OVERLAY-PEERS peer group
    neighbor MPLS-OVERLAY-PEERS remote-as 65001
@@ -604,6 +633,10 @@ router bgp 65001
    neighbor 10.255.2.1 description rr1_Loopback0
    neighbor 10.255.2.2 peer group MPLS-OVERLAY-PEERS
    neighbor 10.255.2.2 description rr2_Loopback0
+   !
+   address-family evpn
+      neighbor default encapsulation mpls next-hop-self source-interface Loopback0
+      neighbor MPLS-OVERLAY-PEERS activate
    !
    address-family ipv4
       no neighbor MPLS-OVERLAY-PEERS activate
@@ -625,6 +658,7 @@ router bgp 65001
       route-target import vpn-ipv4 20:20
       route-target export vpn-ipv4 20:20
       router-id 10.255.1.3
+      update wait-install
       neighbor 10.1.1.10 remote-as 65124
       neighbor 10.1.1.10 description C2_ROUTER2
       neighbor 10.1.1.10 send-community standard

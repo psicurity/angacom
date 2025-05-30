@@ -7,7 +7,7 @@ ethernet_interfaces:
 - name: Ethernet4
   description: P2P_rr1_Ethernet4
   shutdown: false
-  mtu: 1500
+  mtu: 9000
   ip_address: 10.255.3.15/31
   isis_enable: CORE
   isis_metric: 50
@@ -32,7 +32,7 @@ ethernet_interfaces:
 - name: Ethernet3
   description: P2P_p2_Ethernet3
   shutdown: false
-  mtu: 1500
+  mtu: 9000
   ip_address: 10.255.3.16/31
   isis_enable: CORE
   isis_metric: 50
@@ -57,7 +57,7 @@ ethernet_interfaces:
 - name: Ethernet2
   description: P2P_p4_Ethernet2
   shutdown: false
-  mtu: 1500
+  mtu: 9000
   ip_address: 10.255.3.18/31
   isis_enable: CORE
   isis_metric: 50
@@ -122,7 +122,7 @@ management_interfaces:
   type: oob
   gateway: 172.16.100.1
 metadata:
-  platform: vEOS-lab
+  platform: cEOS-lab
   fabric_name: FABRIC
 mpls:
   ip: true
@@ -143,9 +143,14 @@ router_bgp:
     external_routes: 20
     internal_routes: 200
     local_routes: 200
+  graceful_restart:
+    enabled: true
+    restart_time: 300
   maximum_paths:
     paths: 4
     ecmp: 4
+  updates:
+    wait_install: true
   bgp_cluster_id: 10.255.2.2
   bgp:
     default:
@@ -204,11 +209,17 @@ router_isis:
   is_type: level-2
   log_adjacency_changes: true
   mpls_ldp_sync_default: true
+  timers:
+    local_convergence:
+      protected_prefixes: true
+      delay: 10000
   advertise:
     passive_only: false
   address_family_ipv4:
     enabled: true
     maximum_paths: 4
+    fast_reroute_ti_lfa:
+      mode: link-protection
   segment_routing_mpls:
     enabled: true
     router_id: 10.255.2.2

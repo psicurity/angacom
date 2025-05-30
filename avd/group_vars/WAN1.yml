@@ -5,18 +5,25 @@ mgmt_gateway: 172.16.100.1
 # iBGP ASN for the fabric
 bgp_as: 65001
 
+# BGP defaults
+bgp_maximum_paths: 4
+bgp_ecmp: 4
+
 # BGP distance for specific route types
 bgp_distance:
   external_routes: 20
   internal_routes: 200
   local_routes: 200
+bgp_graceful_restart:
+  enabled: true
+  restart_time: 300
 
 # P router group
 p:
   # Definition of default values that will be configured to all nodes defined in this group
   defaults:
     # Set the relevant platform as each platform has different default values in Ansible AVD
-    platform: vEOS-lab
+    platform: cEOS-lab
     # Pool of IPv4 addresses to configure interface Loopback0 used for Router ID
     loopback_ipv4_pool: 10.255.0.0/27
     # ISIS NET system id prefix
@@ -44,11 +51,12 @@ p:
 pe:
   defaults:
     # Set the relevant platform as each platform has different default values in Ansible AVD
-    platform: vEOS-lab
+    platform: cEOS-lab
     # Pool of IPv4 addresses to configure interface Loopback0 used for BGP EVPN sessions
     loopback_ipv4_pool: 10.255.1.0/27
     virtual_router_mac_address: 00:1c:73:00:dc:00
     mpls_route_reflectors: [ rr1, rr2 ]
+    overlay_address_families: [ 'evpn', 'vpn-ipv4' ]
     # ISIS NET system id prefix
     isis_system_id_prefix: '0000.0001'
     spanning_tree_mode: none
@@ -76,7 +84,7 @@ pe:
 # RR router group
 rr:
   defaults:
-    platform: vEOS-lab
+    platform: cEOS-lab
     spanning_tree_mode: none
     loopback_ipv4_pool: 10.255.2.0/27
     mpls_route_reflectors: [ rr1, rr2 ]
@@ -105,7 +113,7 @@ core_interfaces:
     - name: core_profile
       # speed: 100gfull
       # On vEOS-lab, MTU values larger than 1500 can cause issues, in an actual production network this is normally a larger value
-      mtu: 1500
+      mtu: 9000
       isis_metric: 50
       ip_pool: core_pool
       isis_circuit_type: level-2

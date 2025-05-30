@@ -271,9 +271,9 @@ vlan internal order ascending range 1006 1199
 
 | Interface | Description | Channel Group | IP Address | VRF |  MTU | Shutdown | ACL In | ACL Out |
 | --------- | ----------- | ------------- | ---------- | ----| ---- | -------- | ------ | ------- |
-| Ethernet2 | P2P_p4_Ethernet2 | - | 10.255.3.18/31 | default | 1500 | False | - | - |
-| Ethernet3 | P2P_p2_Ethernet3 | - | 10.255.3.16/31 | default | 1500 | False | - | - |
-| Ethernet4 | P2P_rr1_Ethernet4 | - | 10.255.3.15/31 | default | 1500 | False | - | - |
+| Ethernet2 | P2P_p4_Ethernet2 | - | 10.255.3.18/31 | default | 9000 | False | - | - |
+| Ethernet3 | P2P_p2_Ethernet3 | - | 10.255.3.16/31 | default | 9000 | False | - | - |
+| Ethernet4 | P2P_rr1_Ethernet4 | - | 10.255.3.15/31 | default | 9000 | False | - | - |
 
 ##### ISIS
 
@@ -290,7 +290,7 @@ vlan internal order ascending range 1006 1199
 interface Ethernet2
    description P2P_p4_Ethernet2
    no shutdown
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.18/31
    mpls ldp igp sync
@@ -307,7 +307,7 @@ interface Ethernet2
 interface Ethernet3
    description P2P_p2_Ethernet3
    no shutdown
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.16/31
    mpls ldp igp sync
@@ -324,7 +324,7 @@ interface Ethernet3
 interface Ethernet4
    description P2P_rr1_Ethernet4
    no shutdown
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.15/31
    mpls ldp igp sync
@@ -441,6 +441,12 @@ ip route vrf MGMT 0.0.0.0/0 172.16.100.1
 | MPLS LDP Sync Default | True |
 | SR MPLS Enabled | True |
 
+#### ISIS Route Timers
+
+| Settings | Value |
+| -------- | ----- |
+| Local Convergence Delay | 10000 milliseconds |
+
 #### ISIS Interfaces Summary
 
 | Interface | ISIS Instance | ISIS Metric | Interface Mode |
@@ -462,6 +468,7 @@ ip route vrf MGMT 0.0.0.0/0 172.16.100.1
 | -------- | ----- |
 | IPv4 Address-family Enabled | True |
 | Maximum-paths | 4 |
+| TI-LFA Mode | link-protection |
 
 #### Router ISIS Device Configuration
 
@@ -473,9 +480,11 @@ router isis CORE
    is-type level-2
    log-adjacency-changes
    mpls ldp sync default
+   timers local-convergence-delay 10000 protected-prefixes
    !
    address-family ipv4 unicast
       maximum-paths 4
+      fast-reroute ti-lfa mode link-protection
    !
    segment-routing mpls
       no shutdown
@@ -497,6 +506,9 @@ ASN Notation: asplain
 
 | BGP Tuning |
 | ---------- |
+| graceful-restart restart-time 300 |
+| graceful-restart |
+| update wait-install |
 | no bgp default ipv4-unicast |
 | distance bgp 20 200 200 |
 | maximum-paths 4 ecmp 4 |
@@ -550,8 +562,11 @@ ASN Notation: asplain
 !
 router bgp 65001
    router-id 10.255.2.2
+   update wait-install
    no bgp default ipv4-unicast
    distance bgp 20 200 200
+   graceful-restart restart-time 300
+   graceful-restart
    bgp cluster-id 10.255.2.2
    maximum-paths 4 ecmp 4
    neighbor MPLS-OVERLAY-PEERS peer group

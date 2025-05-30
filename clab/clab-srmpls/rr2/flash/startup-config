@@ -1,4 +1,4 @@
-! Startup-config last modified at Fri May 30 13:45:50 2025 by psi
+! Startup-config last modified at Fri May 30 14:21:51 2025 by psi
 ! device: rr2 (DCS-7280CR3AK-32S-F, EOS-4.33.2F-40713977.4332F (engineering build))
 !
 no aaa root
@@ -53,7 +53,7 @@ aaa authorization exec default local
 !
 interface Ethernet2
    description P2P_p4_Ethernet2
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.18/31
    mpls ldp igp sync
@@ -68,7 +68,7 @@ interface Ethernet2
 !
 interface Ethernet3
    description P2P_p2_Ethernet3
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.16/31
    mpls ldp igp sync
@@ -83,7 +83,7 @@ interface Ethernet3
 !
 interface Ethernet4
    description P2P_rr1_Ethernet4
-   mtu 1500
+   mtu 9000
    no switchport
    ip address 10.255.3.15/31
    mpls ldp igp sync
@@ -158,9 +158,12 @@ router bfd
 !
 router bgp 65001
    router-id 10.255.2.2
+   update wait-install
    no bgp default ipv4-unicast
    distance bgp 20 200 200
+   graceful-restart restart-time 300
    bgp cluster-id 10.255.2.2
+   graceful-restart
    maximum-paths 4 ecmp 4
    neighbor MPLS-OVERLAY-PEERS peer group
    neighbor MPLS-OVERLAY-PEERS remote-as 65001
@@ -200,9 +203,11 @@ router isis CORE
    is-type level-2
    log-adjacency-changes
    mpls ldp sync default
+   timers local-convergence-delay protected-prefixes
    !
    address-family ipv4 unicast
       maximum-paths 4
+      fast-reroute ti-lfa mode link-protection
    !
    segment-routing mpls
       no shutdown
