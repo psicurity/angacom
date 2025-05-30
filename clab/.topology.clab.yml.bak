@@ -1,0 +1,161 @@
+name: srmpls
+
+topology:
+  kinds:
+    ceos:
+      startup-config: configs/ceos-config/ceos-startup.cfg
+      image: ceos:4.33.2F
+      env:
+        CLAB_MGMT_VRF: MGMT
+      binds:
+       - cv-onboarding-token:/mnt/flash/cv-onboarding-token:ro
+      exec:
+        - sleep 10
+        - FastCli -p 15 -c 'security pki key generate rsa 4096 eAPI.key'
+        - FastCli -p 15 -c 'security pki certificate generate self-signed eAPI.crt key eAPI.key generate rsa 4096 validity 30000 parameters common-name eAPI'
+    linux:
+      image: alpine
+  nodes:
+    p1:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.11
+      binds:
+       - configs/eos-intf-mapping/DCS-7280CR3MK-32D4_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/p1.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280CR3AK-32S-F
+    p2:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.12
+      binds:
+       - configs/eos-intf-mapping/DCS-7280CR3MK-32D4_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/p2.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280CR3AK-32S-F
+    p3:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.13
+      binds:
+       - configs/eos-intf-mapping/DCS-7280CR3MK-32D4_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/p3.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280CR3AK-32S-F
+    p4:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.14
+      binds:
+       - configs/eos-intf-mapping/DCS-7280CR3MK-32D4_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/p4.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280CR3AK-32S-F
+    rr1:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.151
+      binds:
+       - configs/eos-intf-mapping/DCS-7280CR3MK-32D4_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/rr1.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280CR3AK-32S-F
+    rr2:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.152
+      binds:
+       - configs/eos-intf-mapping/DCS-7280CR3MK-32D4_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/rr2.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280CR3AK-32S-F
+    pe1:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.101
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/pe1.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+    pe2:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.102
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/pe2.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+    pe3:
+      kind: ceos
+      mgmt-ipv4: 172.16.100.103
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/pe3.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+    ag:
+      kind: ceos
+      startup-config: configs/ceos-config/ag.config
+      mgmt-ipv4: 172.16.100.201
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/ag.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+
+    client1:
+      kind: ceos
+      startup-config: configs/ceos-config/client1.config
+      mgmt-ipv4: 172.16.100.211
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/client1.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+    client2:
+      kind: ceos
+      startup-config: configs/ceos-config/client2.config
+      mgmt-ipv4: 172.16.100.212
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/client2.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+    client3:
+      kind: ceos
+      startup-config: configs/ceos-config/client3.config
+      mgmt-ipv4: 172.16.100.213
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/client3.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+    client4:
+      kind: ceos
+      startup-config: configs/ceos-config/client4.config
+      mgmt-ipv4: 172.16.100.214
+      binds:
+       - configs/eos-intf-mapping/DCS-7280SRA-48C6_EosIntfMapping.json:/mnt/flash/EosIntfMapping.json:ro
+       - configs/ceos-config/client4.cfg:/mnt/flash/ceos-config:ro
+      env:
+        MODEL_NAME: DCS-7280SR3AK-48C6-F
+
+  links:
+    - endpoints: ["pe1:eth1", "p1:eth1"]
+    - endpoints: ["pe1:eth2", "p2:eth2"]
+    - endpoints: ["pe1:eth3", "ag:eth1"]
+    - endpoints: ["pe2:eth1", "p2:eth1"]
+    - endpoints: ["pe2:eth2", "p1:eth2"]
+    - endpoints: ["pe2:eth4", "ag:eth2"]
+    - endpoints: ["ag:eth3", "client1:eth1"]
+    - endpoints: ["ag:eth4", "client3:eth1"]
+    - endpoints: ["p1:eth4", "p2:eth4"]
+    - endpoints: ["p1:eth3", "rr1:eth3"]
+    - endpoints: ["p2:eth3", "rr2:eth3"]
+    - endpoints: ["rr1:eth4", "rr2:eth4"]
+    - endpoints: ["rr1:eth2", "p3:eth2"]
+    - endpoints: ["rr2:eth2", "p4:eth2"]
+    - endpoints: ["p3:eth4", "p4:eth4"]
+    - endpoints: ["p3:eth1", "pe3:eth1"]
+    - endpoints: ["p4:eth3", "pe3:eth3"]
+    - endpoints: ["pe3:eth2", "client2:eth1"]
+    - endpoints: ["pe3:eth4", "client4:eth1"]
+
+mgmt:
+  network: srmpls
+  ipv4-subnet: 172.16.100.0/24

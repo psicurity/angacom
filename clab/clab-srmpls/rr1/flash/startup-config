@@ -1,0 +1,95 @@
+! Startup-config last modified at Fri May 30 13:29:04 2025 by root
+! device: rr1 (DCS-7280CR3AK-32S-F, EOS-4.33.2F-40713977.4332F (engineering build))
+!
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$2HnwZjn5dkTu0Gp5$F.GUXdyz4dsaQohxEsgKc6e33KSQg5PbqYXIddHGISj5WLvSWQpF0fyvkqlN2vcjyWdiRtcVShJFzuqtoHFJk1
+username admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP ubuntu@LHVS0020
+!
+management api http-commands
+   protocol https ssl profile eAPI
+   no shutdown
+   !
+   vrf MGMT
+      no shutdown
+!
+daemon TerminAttr
+   exec /usr/bin/TerminAttr -cvaddr=apiserver.arista.io:443 -cvauth=token-secure,/mnt/flash/cv-onboarding-token -cvvrf=MGMT -smashexcludes=ale,flexCounter,hardware,kni,pulse,strata -ingestexclude=/Sysdb/cell/1/agent,/Sysdb/cell/2/agent -taillogs -disableaaa
+   no shutdown
+!
+no service interface inactive port-id allocation disabled
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname rr1
+ip name-server vrf MGMT 8.8.8.8
+!
+spanning-tree mode mstp
+!
+system l1
+   unsupported speed action error
+   unsupported error-correction action error
+!
+vrf instance MGMT
+!
+management security
+   ssl profile eAPI
+      cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL
+      certificate eAPI.crt key eAPI.key
+!
+aaa authorization exec default local none
+!
+interface Ethernet2
+!
+interface Ethernet3
+!
+interface Ethernet4
+!
+interface Management1
+   vrf MGMT
+   ip address 172.16.100.151/24
+   no lldp transmit
+   no lldp receive
+!
+event-handler ConfigureHardwareModel
+   trigger on-boot
+   action bash
+      python -m Acons Sysdb << EOF
+      cd /ar/Sysdb/hardware/entmib
+      if (model := os.getenv('MODEL_NAME')):
+         _.fixedSystem.modelName = model
+      elif (model := os.getenv('CHASSIS_MODEL_NAME')):
+         _.chassis = (1,0,'Chassis')
+         _.chassis.modelName = model
+         for var, value in os.environ.items():
+            if var.startswith('CHASSIS'):
+               keys = var.split('_')
+               if keys[1] == "SUPERVISOR":
+                  i = int(keys[2])
+                  _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')
+                  _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')
+                  _.chassis.cardSlot[i].card.modelName = value
+               elif keys[1] == "LINECARD":
+                  i = int(keys[2]) + 2
+                  _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')
+                  _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')
+                  _.chassis.cardSlot[i].card.modelName = value
+      
+      print(f"Hardare model has been set to {model}")
+      EOF
+!
+no ip routing
+no ip routing vrf MGMT
+!
+ip route vrf MGMT 0.0.0.0/0 172.16.100.1
+!
+router multicast
+   ipv4
+      software-forwarding kernel
+   !
+   ipv6
+      software-forwarding kernel
+!
+end

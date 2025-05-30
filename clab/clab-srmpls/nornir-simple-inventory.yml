@@ -1,0 +1,71 @@
+---
+ag:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.201
+client1:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.211
+client2:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.212
+client3:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.213
+client4:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.214
+p1:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.11
+p2:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.12
+p3:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.13
+p4:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.14
+pe1:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.101
+pe2:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.102
+pe3:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.103
+rr1:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.151
+rr2:
+    username: admin
+    password: admin
+    platform: ceos
+    hostname: 172.16.100.152

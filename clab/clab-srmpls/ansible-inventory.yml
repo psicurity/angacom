@@ -1,0 +1,41 @@
+all:
+  vars:
+    # The generated inventory is assumed to be used from the clab host.
+    # Hence no http proxy should be used. Therefore we make sure the http
+    # module does not attempt using any global http proxy.
+    ansible_httpapi_use_proxy: false
+  children:
+    ceos:
+      vars:
+        # ansible_connection: set ansible_connection variable if required
+        ansible_user: admin
+        ansible_password: admin
+      hosts:
+        clab-srmpls-ag:
+          ansible_host: 172.16.100.201
+        clab-srmpls-client1:
+          ansible_host: 172.16.100.211
+        clab-srmpls-client2:
+          ansible_host: 172.16.100.212
+        clab-srmpls-client3:
+          ansible_host: 172.16.100.213
+        clab-srmpls-client4:
+          ansible_host: 172.16.100.214
+        clab-srmpls-p1:
+          ansible_host: 172.16.100.11
+        clab-srmpls-p2:
+          ansible_host: 172.16.100.12
+        clab-srmpls-p3:
+          ansible_host: 172.16.100.13
+        clab-srmpls-p4:
+          ansible_host: 172.16.100.14
+        clab-srmpls-pe1:
+          ansible_host: 172.16.100.101
+        clab-srmpls-pe2:
+          ansible_host: 172.16.100.102
+        clab-srmpls-pe3:
+          ansible_host: 172.16.100.103
+        clab-srmpls-rr1:
+          ansible_host: 172.16.100.151
+        clab-srmpls-rr2:
+          ansible_host: 172.16.100.152
