@@ -30,6 +30,11 @@ eos_designs_documentation:
 underlay_routing_protocol: isis-sr-ldp
 overlay_routing_protocol: ibgp
 
+# ISIS TI-LFA parameters | Optional.
+isis_ti_lfa:
+  enabled: true
+  protection: link
+
 # Local users
 local_users:
   # Define a new user, which is called "ansible"
