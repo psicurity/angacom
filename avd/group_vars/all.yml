@@ -23,6 +23,8 @@ eos_cli: |
    vrf MGMT
       no shutdown
   !
+  platform tfa personality arfa
+  !
   event-handler ConfigureHardwareModel
     trigger on-boot
     action bash

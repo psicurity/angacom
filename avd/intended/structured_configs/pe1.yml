@@ -108,6 +108,8 @@ loopback_interfaces:
       interface: true
   isis_enable: CORE
   isis_passive: true
+  node_segment:
+    ipv4_index: 1
 management_api_http:
   enable_https: true
   enable_vrfs:
@@ -226,9 +228,14 @@ router_isis:
   is_type: level-2
   log_adjacency_changes: true
   mpls_ldp_sync_default: true
+  advertise:
+    passive_only: false
   address_family_ipv4:
     enabled: true
     maximum_paths: 4
+  segment_routing_mpls:
+    enabled: true
+    router_id: 10.255.1.1
 router_ospf:
   process_ids:
   - id: 10

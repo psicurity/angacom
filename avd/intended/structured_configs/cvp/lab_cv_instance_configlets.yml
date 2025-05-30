@@ -33,32 +33,34 @@ cvp_configlets:
     circuit-type level-2\n   isis metric 50\n   isis hello padding\n   isis network
     point-to-point\n   isis authentication mode md5\n   isis authentication key 7
     $1c$sTNAlR6rKSw=\n!\ninterface Loopback0\n   description ROUTER_ID\n   no shutdown\n
-    \  ip address 10.255.0.1/32\n   mpls ldp interface\n   isis enable CORE\n   isis
-    passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no shutdown\n
-    \  vrf MGMT\n   ip address 172.16.100.11/24\n!\nip routing\nno ip routing vrf
-    MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n   router-id
-    10.255.0.1\n   transport-address interface Loopback0\n   interface disabled default\n
-    \  no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp server vrf MGMT
-    time.google.com\n!\nrouter isis CORE\n   net 49.0001.0102.5500.0001.00\n   router-id
-    ipv4 10.255.0.1\n   is-type level-2\n   log-adjacency-changes\n   mpls ldp sync
-    default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n   !\n!\nmanagement
+    \  ip address 10.255.0.1/32\n   mpls ldp interface\n   node-segment ipv4 index
+    1\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n   description
+    OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.11/24\n!\nip
+    routing\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
+    ip\n!\nmpls ldp\n   router-id 10.255.0.1\n   transport-address interface Loopback0\n
+    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
+    Management1\nntp server vrf MGMT time.google.com\n!\nrouter isis CORE\n   net
+    49.0001.0102.5500.0001.00\n   router-id ipv4 10.255.0.1\n   is-type level-2\n
+    \  log-adjacency-changes\n   mpls ldp sync default\n   !\n   address-family ipv4
+    unicast\n      maximum-paths 4\n   !\n   segment-routing mpls\n      no shutdown\n!\nmanagement
     security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
     \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
     \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
-    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_p2: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -93,32 +95,34 @@ cvp_configlets:
     circuit-type level-2\n   isis metric 50\n   isis hello padding\n   isis network
     point-to-point\n   isis authentication mode md5\n   isis authentication key 7
     $1c$sTNAlR6rKSw=\n!\ninterface Loopback0\n   description ROUTER_ID\n   no shutdown\n
-    \  ip address 10.255.0.2/32\n   mpls ldp interface\n   isis enable CORE\n   isis
-    passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no shutdown\n
-    \  vrf MGMT\n   ip address 172.16.100.12/24\n!\nip routing\nno ip routing vrf
-    MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n   router-id
-    10.255.0.2\n   transport-address interface Loopback0\n   interface disabled default\n
-    \  no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp server vrf MGMT
-    time.google.com\n!\nrouter isis CORE\n   net 49.0001.0102.5500.0002.00\n   router-id
-    ipv4 10.255.0.2\n   is-type level-2\n   log-adjacency-changes\n   mpls ldp sync
-    default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n   !\n!\nmanagement
+    \  ip address 10.255.0.2/32\n   mpls ldp interface\n   node-segment ipv4 index
+    2\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n   description
+    OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.12/24\n!\nip
+    routing\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
+    ip\n!\nmpls ldp\n   router-id 10.255.0.2\n   transport-address interface Loopback0\n
+    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
+    Management1\nntp server vrf MGMT time.google.com\n!\nrouter isis CORE\n   net
+    49.0001.0102.5500.0002.00\n   router-id ipv4 10.255.0.2\n   is-type level-2\n
+    \  log-adjacency-changes\n   mpls ldp sync default\n   !\n   address-family ipv4
+    unicast\n      maximum-paths 4\n   !\n   segment-routing mpls\n      no shutdown\n!\nmanagement
     security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
     \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
     \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
-    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_p3: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -148,32 +152,34 @@ cvp_configlets:
     \  isis circuit-type level-2\n   isis metric 50\n   isis hello padding\n   isis
     network point-to-point\n   isis authentication mode md5\n   isis authentication
     key 7 $1c$sTNAlR6rKSw=\n!\ninterface Loopback0\n   description ROUTER_ID\n   no
-    shutdown\n   ip address 10.255.0.3/32\n   mpls ldp interface\n   isis enable CORE\n
-    \  isis passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no
-    shutdown\n   vrf MGMT\n   ip address 172.16.100.13/24\n!\nip routing\nno ip routing
-    vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n
-    \  router-id 10.255.0.3\n   transport-address interface Loopback0\n   interface
-    disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp
-    server vrf MGMT time.google.com\n!\nrouter isis CORE\n   net 49.0001.0102.5500.0003.00\n
-    \  router-id ipv4 10.255.0.3\n   is-type level-2\n   log-adjacency-changes\n   mpls
-    ldp sync default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n
-    \  !\n!\nmanagement security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
+    shutdown\n   ip address 10.255.0.3/32\n   mpls ldp interface\n   node-segment
+    ipv4 index 3\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n
+    \  description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.13/24\n!\nip
+    routing\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
+    ip\n!\nmpls ldp\n   router-id 10.255.0.3\n   transport-address interface Loopback0\n
+    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
+    Management1\nntp server vrf MGMT time.google.com\n!\nrouter isis CORE\n   net
+    49.0001.0102.5500.0003.00\n   router-id ipv4 10.255.0.3\n   is-type level-2\n
+    \  log-adjacency-changes\n   mpls ldp sync default\n   !\n   address-family ipv4
+    unicast\n      maximum-paths 4\n   !\n   segment-routing mpls\n      no shutdown\n!\nmanagement
+    security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
     \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
     \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
-    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_p4: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -203,32 +209,34 @@ cvp_configlets:
     \  isis circuit-type level-2\n   isis metric 50\n   isis hello padding\n   isis
     network point-to-point\n   isis authentication mode md5\n   isis authentication
     key 7 $1c$sTNAlR6rKSw=\n!\ninterface Loopback0\n   description ROUTER_ID\n   no
-    shutdown\n   ip address 10.255.0.4/32\n   mpls ldp interface\n   isis enable CORE\n
-    \  isis passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no
-    shutdown\n   vrf MGMT\n   ip address 172.16.100.14/24\n!\nip routing\nno ip routing
-    vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n
-    \  router-id 10.255.0.4\n   transport-address interface Loopback0\n   interface
-    disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp
-    server vrf MGMT time.google.com\n!\nrouter isis CORE\n   net 49.0001.0102.5500.0004.00\n
-    \  router-id ipv4 10.255.0.4\n   is-type level-2\n   log-adjacency-changes\n   mpls
-    ldp sync default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n
-    \  !\n!\nmanagement security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
+    shutdown\n   ip address 10.255.0.4/32\n   mpls ldp interface\n   node-segment
+    ipv4 index 4\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n
+    \  description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.14/24\n!\nip
+    routing\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
+    ip\n!\nmpls ldp\n   router-id 10.255.0.4\n   transport-address interface Loopback0\n
+    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
+    Management1\nntp server vrf MGMT time.google.com\n!\nrouter isis CORE\n   net
+    49.0001.0102.5500.0004.00\n   router-id ipv4 10.255.0.4\n   is-type level-2\n
+    \  log-adjacency-changes\n   mpls ldp sync default\n   !\n   address-family ipv4
+    unicast\n      maximum-paths 4\n   !\n   segment-routing mpls\n      no shutdown\n!\nmanagement
+    security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
     \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
     \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
-    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_pe1: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -259,18 +267,18 @@ cvp_configlets:
     Ethernet3.20\n   description C2_L3_SERVICE\n   no shutdown\n   encapsulation dot1q
     vlan 20\n   vrf C2_VRF1\n   ip address 10.1.1.1/29\n!\ninterface Loopback0\n   description
     ROUTER_ID\n   no shutdown\n   ip address 10.255.1.1/32\n   mpls ldp interface\n
-    \  isis enable CORE\n   isis passive\n!\ninterface Management1\n   description
-    OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.101/24\n!\nip
-    virtual-router mac-address 00:1c:73:00:dc:00\n!\nip routing\nip routing vrf C1_VRF1\nip
-    routing vrf C2_VRF1\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
-    ip\n!\nmpls ldp\n   router-id 10.255.1.1\n   transport-address interface Loopback0\n
-    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
-    Management1\nntp server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval
-    300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.1.1\n   no
-    bgp default ipv4-unicast\n   distance bgp 20 200 200\n   maximum-paths 4 ecmp
-    4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS remote-as
-    65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor MPLS-OVERLAY-PEERS
-    bfd\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
+    \  node-segment ipv4 index 1\n   isis enable CORE\n   isis passive\n!\ninterface
+    Management1\n   description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip
+    address 172.16.100.101/24\n!\nip virtual-router mac-address 00:1c:73:00:dc:00\n!\nip
+    routing\nip routing vrf C1_VRF1\nip routing vrf C2_VRF1\nno ip routing vrf MGMT\n!\nip
+    route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n   router-id 10.255.1.1\n
+    \  transport-address interface Loopback0\n   interface disabled default\n   no
+    shutdown\n!\nntp local-interface vrf MGMT Management1\nntp server vrf MGMT time.google.com\n!\nrouter
+    bfd\n   multihop interval 300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id
+    10.255.1.1\n   no bgp default ipv4-unicast\n   distance bgp 20 200 200\n   maximum-paths
+    4 ecmp 4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS
+    remote-as 65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor
+    MPLS-OVERLAY-PEERS bfd\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
     \  neighbor MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS
     maximum-routes 0\n   neighbor 10.255.2.1 peer group MPLS-OVERLAY-PEERS\n   neighbor
     10.255.2.1 description rr1_Loopback0\n   neighbor 10.255.2.2 peer group MPLS-OVERLAY-PEERS\n
@@ -287,26 +295,27 @@ cvp_configlets:
     100\n      redistribute connected\n      !\n      address-family ipv4\n         neighbor
     10.1.1.3 activate\n!\nrouter isis CORE\n   net 49.0001.0102.5500.1001.00\n   router-id
     ipv4 10.255.1.1\n   is-type level-2\n   log-adjacency-changes\n   mpls ldp sync
-    default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n   !\n!\nrouter
-    ospf 10 vrf C1_VRF1\n   router-id 10.255.1.1\n   passive-interface default\n   no
-    passive-interface Ethernet3.10\n   redistribute bgp\n!\nmanagement security\n
-    ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n    certificate
-    eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n    no lldp
-    transmit\n!\nmanagement api http-commands\n protocol https ssl profile eAPI\n
-    no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n   !\n   segment-routing
+    mpls\n      no shutdown\n!\nrouter ospf 10 vrf C1_VRF1\n   router-id 10.255.1.1\n
+    \  passive-interface default\n   no passive-interface Ethernet3.10\n   redistribute
+    bgp\n!\nmanagement security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
+    \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
+    \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_pe2: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -337,18 +346,18 @@ cvp_configlets:
     Ethernet4.20\n   description C2_L3_SERVICE\n   no shutdown\n   encapsulation dot1q
     vlan 20\n   vrf C2_VRF1\n   ip address 10.1.1.2/29\n!\ninterface Loopback0\n   description
     ROUTER_ID\n   no shutdown\n   ip address 10.255.1.2/32\n   mpls ldp interface\n
-    \  isis enable CORE\n   isis passive\n!\ninterface Management1\n   description
-    OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.102/24\n!\nip
-    virtual-router mac-address 00:1c:73:00:dc:00\n!\nip routing\nip routing vrf C1_VRF1\nip
-    routing vrf C2_VRF1\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
-    ip\n!\nmpls ldp\n   router-id 10.255.1.2\n   transport-address interface Loopback0\n
-    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
-    Management1\nntp server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval
-    300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.1.2\n   no
-    bgp default ipv4-unicast\n   distance bgp 20 200 200\n   maximum-paths 4 ecmp
-    4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS remote-as
-    65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor MPLS-OVERLAY-PEERS
-    bfd\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
+    \  node-segment ipv4 index 2\n   isis enable CORE\n   isis passive\n!\ninterface
+    Management1\n   description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip
+    address 172.16.100.102/24\n!\nip virtual-router mac-address 00:1c:73:00:dc:00\n!\nip
+    routing\nip routing vrf C1_VRF1\nip routing vrf C2_VRF1\nno ip routing vrf MGMT\n!\nip
+    route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n   router-id 10.255.1.2\n
+    \  transport-address interface Loopback0\n   interface disabled default\n   no
+    shutdown\n!\nntp local-interface vrf MGMT Management1\nntp server vrf MGMT time.google.com\n!\nrouter
+    bfd\n   multihop interval 300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id
+    10.255.1.2\n   no bgp default ipv4-unicast\n   distance bgp 20 200 200\n   maximum-paths
+    4 ecmp 4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS
+    remote-as 65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor
+    MPLS-OVERLAY-PEERS bfd\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
     \  neighbor MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS
     maximum-routes 0\n   neighbor 10.255.2.1 peer group MPLS-OVERLAY-PEERS\n   neighbor
     10.255.2.1 description rr1_Loopback0\n   neighbor 10.255.2.2 peer group MPLS-OVERLAY-PEERS\n
@@ -365,26 +374,27 @@ cvp_configlets:
     100\n      redistribute connected\n      !\n      address-family ipv4\n         neighbor
     10.1.1.3 activate\n!\nrouter isis CORE\n   net 49.0001.0102.5500.1002.00\n   router-id
     ipv4 10.255.1.2\n   is-type level-2\n   log-adjacency-changes\n   mpls ldp sync
-    default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n   !\n!\nrouter
-    ospf 10 vrf C1_VRF1\n   router-id 10.255.1.2\n   passive-interface default\n   no
-    passive-interface Ethernet4.10\n   redistribute bgp\n!\nmanagement security\n
-    ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n    certificate
-    eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n    no lldp
-    transmit\n!\nmanagement api http-commands\n protocol https ssl profile eAPI\n
-    no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n   !\n   segment-routing
+    mpls\n      no shutdown\n!\nrouter ospf 10 vrf C1_VRF1\n   router-id 10.255.1.2\n
+    \  passive-interface default\n   no passive-interface Ethernet4.10\n   redistribute
+    bgp\n!\nmanagement security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
+    \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
+    \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_pe3: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -414,17 +424,18 @@ cvp_configlets:
     key 7 $1c$sTNAlR6rKSw=\n!\ninterface Ethernet4\n   description C2_L3_SERVICE\n
     \  no shutdown\n   no switchport\n   vrf C2_VRF1\n   ip address 10.1.1.9/30\n!\ninterface
     Loopback0\n   description ROUTER_ID\n   no shutdown\n   ip address 10.255.1.3/32\n
-    \  mpls ldp interface\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n
-    \  description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.103/24\n!\nip
-    virtual-router mac-address 00:1c:73:00:dc:00\n!\nip routing\nip routing vrf C1_VRF1\nip
-    routing vrf C2_VRF1\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
-    ip\n!\nmpls ldp\n   router-id 10.255.1.3\n   transport-address interface Loopback0\n
-    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
-    Management1\nntp server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval
-    300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.1.3\n   no
-    bgp default ipv4-unicast\n   distance bgp 20 200 200\n   maximum-paths 4 ecmp
-    4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS remote-as
-    65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor MPLS-OVERLAY-PEERS
+    \  mpls ldp interface\n   node-segment ipv4 index 3\n   isis enable CORE\n   isis
+    passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no shutdown\n
+    \  vrf MGMT\n   ip address 172.16.100.103/24\n!\nip virtual-router mac-address
+    00:1c:73:00:dc:00\n!\nip routing\nip routing vrf C1_VRF1\nip routing vrf C2_VRF1\nno
+    ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls
+    ldp\n   router-id 10.255.1.3\n   transport-address interface Loopback0\n   interface
+    disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp
+    server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval 300 min-rx
+    300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.1.3\n   no bgp default
+    ipv4-unicast\n   distance bgp 20 200 200\n   maximum-paths 4 ecmp 4\n   neighbor
+    MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS remote-as 65001\n
+    \  neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor MPLS-OVERLAY-PEERS
     bfd\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
     \  neighbor MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS
     maximum-routes 0\n   neighbor 10.255.2.1 peer group MPLS-OVERLAY-PEERS\n   neighbor
@@ -443,13 +454,14 @@ cvp_configlets:
     ipv4\n         neighbor 10.1.1.10 activate\n!\nrouter isis CORE\n   net 49.0001.0102.5500.1003.00\n
     \  router-id ipv4 10.255.1.3\n   is-type level-2\n   log-adjacency-changes\n   mpls
     ldp sync default\n   !\n   address-family ipv4 unicast\n      maximum-paths 4\n
-    \  !\n!\nrouter ospf 10 vrf C1_VRF1\n   router-id 10.255.1.3\n   passive-interface
-    default\n   no passive-interface Ethernet2\n   redistribute bgp\n!\nmanagement
-    security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
-    \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
-    \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
-    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nevent-handler ConfigureHardwareModel\n
-    \ trigger on-boot\n  action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
+    \  !\n   segment-routing mpls\n      no shutdown\n!\nrouter ospf 10 vrf C1_VRF1\n
+    \  router-id 10.255.1.3\n   passive-interface default\n   no passive-interface
+    Ethernet2\n   redistribute bgp\n!\nmanagement security\n ssl profile eAPI\n    cipher-list
+    HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n    certificate eAPI.crt key eAPI.key\n!\ninterface
+    Management1\n    no lldp receive\n    no lldp transmit\n!\nmanagement api http-commands\n
+    protocol https ssl profile eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform
+    tfa personality arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n
+    \ action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
     \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
     model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
     = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
@@ -491,52 +503,53 @@ cvp_configlets:
     enable CORE\n   isis circuit-type level-2\n   isis metric 50\n   isis hello padding\n
     \  isis network point-to-point\n   isis authentication mode md5\n   isis authentication
     key 7 $1c$sTNAlR6rKSw=\n!\ninterface Loopback0\n   description ROUTER_ID\n   no
-    shutdown\n   ip address 10.255.2.1/32\n   mpls ldp interface\n   isis enable CORE\n
-    \  isis passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no
-    shutdown\n   vrf MGMT\n   ip address 172.16.100.151/24\n!\nip routing\nno ip routing
-    vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n
-    \  router-id 10.255.2.1\n   transport-address interface Loopback0\n   interface
-    disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp
-    server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval 300 min-rx
-    300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.2.1\n   no bgp default
-    ipv4-unicast\n   distance bgp 20 200 200\n   bgp cluster-id 10.255.2.1\n   maximum-paths
-    4 ecmp 4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS
-    remote-as 65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor
-    MPLS-OVERLAY-PEERS bfd\n   neighbor MPLS-OVERLAY-PEERS route-reflector-client\n
-    \  neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n   neighbor
-    MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS maximum-routes
-    0\n   neighbor RR-OVERLAY-PEERS peer group\n   neighbor RR-OVERLAY-PEERS remote-as
-    65001\n   neighbor RR-OVERLAY-PEERS update-source Loopback0\n   neighbor RR-OVERLAY-PEERS
-    bfd\n   neighbor RR-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n   neighbor
-    RR-OVERLAY-PEERS send-community\n   neighbor RR-OVERLAY-PEERS maximum-routes 0\n
-    \  neighbor 10.255.1.1 peer group MPLS-OVERLAY-PEERS\n   neighbor 10.255.1.1 description
-    pe1_Loopback0\n   neighbor 10.255.1.2 peer group MPLS-OVERLAY-PEERS\n   neighbor
-    10.255.1.2 description pe2_Loopback0\n   neighbor 10.255.1.3 peer group MPLS-OVERLAY-PEERS\n
-    \  neighbor 10.255.1.3 description pe3_Loopback0\n   neighbor 10.255.2.2 peer
-    group RR-OVERLAY-PEERS\n   neighbor 10.255.2.2 description rr2_Loopback0\n   !\n
-    \  address-family ipv4\n      no neighbor MPLS-OVERLAY-PEERS activate\n      no
-    neighbor RR-OVERLAY-PEERS activate\n   !\n   address-family vpn-ipv4\n      neighbor
-    MPLS-OVERLAY-PEERS activate\n      neighbor RR-OVERLAY-PEERS activate\n!\nrouter
+    shutdown\n   ip address 10.255.2.1/32\n   mpls ldp interface\n   node-segment
+    ipv4 index 1\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n
+    \  description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.151/24\n!\nip
+    routing\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
+    ip\n!\nmpls ldp\n   router-id 10.255.2.1\n   transport-address interface Loopback0\n
+    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
+    Management1\nntp server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval
+    300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.2.1\n   no
+    bgp default ipv4-unicast\n   distance bgp 20 200 200\n   bgp cluster-id 10.255.2.1\n
+    \  maximum-paths 4 ecmp 4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor
+    MPLS-OVERLAY-PEERS remote-as 65001\n   neighbor MPLS-OVERLAY-PEERS update-source
+    Loopback0\n   neighbor MPLS-OVERLAY-PEERS bfd\n   neighbor MPLS-OVERLAY-PEERS
+    route-reflector-client\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
+    \  neighbor MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS
+    maximum-routes 0\n   neighbor RR-OVERLAY-PEERS peer group\n   neighbor RR-OVERLAY-PEERS
+    remote-as 65001\n   neighbor RR-OVERLAY-PEERS update-source Loopback0\n   neighbor
+    RR-OVERLAY-PEERS bfd\n   neighbor RR-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
+    \  neighbor RR-OVERLAY-PEERS send-community\n   neighbor RR-OVERLAY-PEERS maximum-routes
+    0\n   neighbor 10.255.1.1 peer group MPLS-OVERLAY-PEERS\n   neighbor 10.255.1.1
+    description pe1_Loopback0\n   neighbor 10.255.1.2 peer group MPLS-OVERLAY-PEERS\n
+    \  neighbor 10.255.1.2 description pe2_Loopback0\n   neighbor 10.255.1.3 peer
+    group MPLS-OVERLAY-PEERS\n   neighbor 10.255.1.3 description pe3_Loopback0\n   neighbor
+    10.255.2.2 peer group RR-OVERLAY-PEERS\n   neighbor 10.255.2.2 description rr2_Loopback0\n
+    \  !\n   address-family ipv4\n      no neighbor MPLS-OVERLAY-PEERS activate\n
+    \     no neighbor RR-OVERLAY-PEERS activate\n   !\n   address-family vpn-ipv4\n
+    \     neighbor MPLS-OVERLAY-PEERS activate\n      neighbor RR-OVERLAY-PEERS activate\n!\nrouter
     isis CORE\n   net 49.0001.0102.5500.2001.00\n   router-id ipv4 10.255.2.1\n   is-type
     level-2\n   log-adjacency-changes\n   mpls ldp sync default\n   !\n   address-family
-    ipv4 unicast\n      maximum-paths 4\n   !\n!\nmanagement security\n ssl profile
-    eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n    certificate eAPI.crt
-    key eAPI.key\n!\ninterface Management1\n    no lldp receive\n    no lldp transmit\n!\nmanagement
-    api http-commands\n protocol https ssl profile eAPI\n no shutdown\n !\n vrf MGMT\n
-    \   no shutdown\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n
-    \ action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    ipv4 unicast\n      maximum-paths 4\n   !\n   segment-routing mpls\n      no shutdown\n!\nmanagement
+    security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
+    \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
+    \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
   ANGA_rr2: "!\nno enable password\nno aaa root\n!\nusername admin privilege 15 role
     network-admin secret sha512 $6$1vIyi/MdhdHtK4zg$9AON0mlzmK29KIuRgRGBKlutM4zEvXqt07qohoxdVXeGDH1aTu7uRUf/gmbGwAVvI7DwlPfWBF374av3djqUI0\nusername
     admin ssh-key ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPh1fn/zh7sMvIo0AMcnQ888HrNU79trbb8Jks8feXoP
@@ -566,52 +579,53 @@ cvp_configlets:
     enable CORE\n   isis circuit-type level-2\n   isis metric 50\n   isis hello padding\n
     \  isis network point-to-point\n   isis authentication mode md5\n   isis authentication
     key 7 $1c$sTNAlR6rKSw=\n!\ninterface Loopback0\n   description ROUTER_ID\n   no
-    shutdown\n   ip address 10.255.2.2/32\n   mpls ldp interface\n   isis enable CORE\n
-    \  isis passive\n!\ninterface Management1\n   description OOB_MANAGEMENT\n   no
-    shutdown\n   vrf MGMT\n   ip address 172.16.100.152/24\n!\nip routing\nno ip routing
-    vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls ip\n!\nmpls ldp\n
-    \  router-id 10.255.2.2\n   transport-address interface Loopback0\n   interface
-    disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT Management1\nntp
-    server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval 300 min-rx
-    300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.2.2\n   no bgp default
-    ipv4-unicast\n   distance bgp 20 200 200\n   bgp cluster-id 10.255.2.2\n   maximum-paths
-    4 ecmp 4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor MPLS-OVERLAY-PEERS
-    remote-as 65001\n   neighbor MPLS-OVERLAY-PEERS update-source Loopback0\n   neighbor
-    MPLS-OVERLAY-PEERS bfd\n   neighbor MPLS-OVERLAY-PEERS route-reflector-client\n
-    \  neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n   neighbor
-    MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS maximum-routes
-    0\n   neighbor RR-OVERLAY-PEERS peer group\n   neighbor RR-OVERLAY-PEERS remote-as
-    65001\n   neighbor RR-OVERLAY-PEERS update-source Loopback0\n   neighbor RR-OVERLAY-PEERS
-    bfd\n   neighbor RR-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n   neighbor
-    RR-OVERLAY-PEERS send-community\n   neighbor RR-OVERLAY-PEERS maximum-routes 0\n
-    \  neighbor 10.255.1.1 peer group MPLS-OVERLAY-PEERS\n   neighbor 10.255.1.1 description
-    pe1_Loopback0\n   neighbor 10.255.1.2 peer group MPLS-OVERLAY-PEERS\n   neighbor
-    10.255.1.2 description pe2_Loopback0\n   neighbor 10.255.1.3 peer group MPLS-OVERLAY-PEERS\n
-    \  neighbor 10.255.1.3 description pe3_Loopback0\n   neighbor 10.255.2.1 peer
-    group RR-OVERLAY-PEERS\n   neighbor 10.255.2.1 description rr1_Loopback0\n   !\n
-    \  address-family ipv4\n      no neighbor MPLS-OVERLAY-PEERS activate\n      no
-    neighbor RR-OVERLAY-PEERS activate\n   !\n   address-family vpn-ipv4\n      neighbor
-    MPLS-OVERLAY-PEERS activate\n      neighbor RR-OVERLAY-PEERS activate\n!\nrouter
+    shutdown\n   ip address 10.255.2.2/32\n   mpls ldp interface\n   node-segment
+    ipv4 index 2\n   isis enable CORE\n   isis passive\n!\ninterface Management1\n
+    \  description OOB_MANAGEMENT\n   no shutdown\n   vrf MGMT\n   ip address 172.16.100.152/24\n!\nip
+    routing\nno ip routing vrf MGMT\n!\nip route vrf MGMT 0.0.0.0/0 172.16.100.1\n!\nmpls
+    ip\n!\nmpls ldp\n   router-id 10.255.2.2\n   transport-address interface Loopback0\n
+    \  interface disabled default\n   no shutdown\n!\nntp local-interface vrf MGMT
+    Management1\nntp server vrf MGMT time.google.com\n!\nrouter bfd\n   multihop interval
+    300 min-rx 300 multiplier 3\n!\nrouter bgp 65001\n   router-id 10.255.2.2\n   no
+    bgp default ipv4-unicast\n   distance bgp 20 200 200\n   bgp cluster-id 10.255.2.2\n
+    \  maximum-paths 4 ecmp 4\n   neighbor MPLS-OVERLAY-PEERS peer group\n   neighbor
+    MPLS-OVERLAY-PEERS remote-as 65001\n   neighbor MPLS-OVERLAY-PEERS update-source
+    Loopback0\n   neighbor MPLS-OVERLAY-PEERS bfd\n   neighbor MPLS-OVERLAY-PEERS
+    route-reflector-client\n   neighbor MPLS-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
+    \  neighbor MPLS-OVERLAY-PEERS send-community\n   neighbor MPLS-OVERLAY-PEERS
+    maximum-routes 0\n   neighbor RR-OVERLAY-PEERS peer group\n   neighbor RR-OVERLAY-PEERS
+    remote-as 65001\n   neighbor RR-OVERLAY-PEERS update-source Loopback0\n   neighbor
+    RR-OVERLAY-PEERS bfd\n   neighbor RR-OVERLAY-PEERS password 7 $1c$G8BQN0ezkiJOX2cuAYpsEA==\n
+    \  neighbor RR-OVERLAY-PEERS send-community\n   neighbor RR-OVERLAY-PEERS maximum-routes
+    0\n   neighbor 10.255.1.1 peer group MPLS-OVERLAY-PEERS\n   neighbor 10.255.1.1
+    description pe1_Loopback0\n   neighbor 10.255.1.2 peer group MPLS-OVERLAY-PEERS\n
+    \  neighbor 10.255.1.2 description pe2_Loopback0\n   neighbor 10.255.1.3 peer
+    group MPLS-OVERLAY-PEERS\n   neighbor 10.255.1.3 description pe3_Loopback0\n   neighbor
+    10.255.2.1 peer group RR-OVERLAY-PEERS\n   neighbor 10.255.2.1 description rr1_Loopback0\n
+    \  !\n   address-family ipv4\n      no neighbor MPLS-OVERLAY-PEERS activate\n
+    \     no neighbor RR-OVERLAY-PEERS activate\n   !\n   address-family vpn-ipv4\n
+    \     neighbor MPLS-OVERLAY-PEERS activate\n      neighbor RR-OVERLAY-PEERS activate\n!\nrouter
     isis CORE\n   net 49.0001.0102.5500.2002.00\n   router-id ipv4 10.255.2.2\n   is-type
     level-2\n   log-adjacency-changes\n   mpls ldp sync default\n   !\n   address-family
-    ipv4 unicast\n      maximum-paths 4\n   !\n!\nmanagement security\n ssl profile
-    eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n    certificate eAPI.crt
-    key eAPI.key\n!\ninterface Management1\n    no lldp receive\n    no lldp transmit\n!\nmanagement
-    api http-commands\n protocol https ssl profile eAPI\n no shutdown\n !\n vrf MGMT\n
-    \   no shutdown\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n
-    \ action bash\n     python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n
-    \    if (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName =
-    model\n     elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis
-    = (1,0,'Chassis')\n        _.chassis.modelName = model\n        for var, value
-    in os.environ.items():\n           if var.startswith('CHASSIS'):\n              keys
-    = var.split('_')\n              if keys[1] == \"SUPERVISOR\":\n                 i
-    = int(keys[2])\n                 _.chassis.cardSlot.newMember(100002000+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
-    'Supervisor')\n                 _.chassis.cardSlot[i].card.modelName = value\n
-    \             elif keys[1] == \"LINECARD\":\n                 i = int(keys[2])
-    + 2\n                 _.chassis.cardSlot.newMember(100002000+i, i, 'Linecard')\n
-    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Linecard')\n                 _.chassis.cardSlot[i].card.modelName
-    = value\n\n     EOF\n\n!\nend\n"
+    ipv4 unicast\n      maximum-paths 4\n   !\n   segment-routing mpls\n      no shutdown\n!\nmanagement
+    security\n ssl profile eAPI\n    cipher-list HIGH:!eNULL:!aNULL:!MD5:!ADH:!ANULL\n
+    \   certificate eAPI.crt key eAPI.key\n!\ninterface Management1\n    no lldp receive\n
+    \   no lldp transmit\n!\nmanagement api http-commands\n protocol https ssl profile
+    eAPI\n no shutdown\n !\n vrf MGMT\n    no shutdown\n!\nplatform tfa personality
+    arfa\n!\nevent-handler ConfigureHardwareModel\n  trigger on-boot\n  action bash\n
+    \    python -m Acons Sysdb << EOF\n     cd /ar/Sysdb/hardware/entmib\n     if
+    (model := os.getenv('MODEL_NAME')):\n        _.fixedSystem.modelName = model\n
+    \    elif (model := os.getenv('CHASSIS_MODEL_NAME')):\n        _.chassis = (1,0,'Chassis')\n
+    \       _.chassis.modelName = model\n        for var, value in os.environ.items():\n
+    \          if var.startswith('CHASSIS'):\n              keys = var.split('_')\n
+    \             if keys[1] == \"SUPERVISOR\":\n                 i = int(keys[2])\n
+    \                _.chassis.cardSlot.newMember(100002000+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card = (100002100+i, i, 'Supervisor')\n
+    \                _.chassis.cardSlot[i].card.modelName = value\n              elif
+    keys[1] == \"LINECARD\":\n                 i = int(keys[2]) + 2\n                 _.chassis.cardSlot.newMember(100002000+i,
+    i, 'Linecard')\n                 _.chassis.cardSlot[i].card = (100002100+i, i,
+    'Linecard')\n                 _.chassis.cardSlot[i].card.modelName = value\n\n
+    \    EOF\n\n!\nend\n"
 cvp_topology:
   WAN1:
     devices: []

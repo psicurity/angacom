@@ -24,7 +24,10 @@ eos_designs_documentation:
   p2p_links_csv: true
 
 # Define underlay and overlay routing protocol to be used
-underlay_routing_protocol: isis-ldp
+#underlay_routing_protocol: ospf-ldp
+#underlay_routing_protocol: isis-ldp
+#underlay_routing_protocol: isis-sr
+underlay_routing_protocol: isis-sr-ldp
 overlay_routing_protocol: ibgp
 
 # Local users

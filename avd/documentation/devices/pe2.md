@@ -383,6 +383,7 @@ interface Loopback0
    no shutdown
    ip address 10.255.1.2/32
    mpls ldp interface
+   node-segment ipv4 index 2
    isis enable CORE
    isis passive
 ```
@@ -501,6 +502,7 @@ router ospf 10 vrf C1_VRF1
 | Router-ID | 10.255.1.2 |
 | Log Adjacency Changes | True |
 | MPLS LDP Sync Default | True |
+| SR MPLS Enabled | True |
 
 #### ISIS Interfaces Summary
 
@@ -509,6 +511,12 @@ router ospf 10 vrf C1_VRF1
 | Ethernet1 | CORE | 50 | point-to-point |
 | Ethernet2 | CORE | 50 | point-to-point |
 | Loopback0 | CORE | - | passive |
+
+#### ISIS Segment-routing Node-SID
+
+| Loopback | IPv4 Index | IPv6 Index |
+| -------- | ---------- | ---------- |
+| Loopback0 | 2 | - |
 
 #### ISIS IPv4 Address Family Summary
 
@@ -531,6 +539,8 @@ router isis CORE
    address-family ipv4 unicast
       maximum-paths 4
    !
+   segment-routing mpls
+      no shutdown
 ```
 
 ### Router BGP
@@ -744,6 +754,8 @@ management api http-commands
  !
  vrf MGMT
     no shutdown
+!
+platform tfa personality arfa
 !
 event-handler ConfigureHardwareModel
   trigger on-boot
